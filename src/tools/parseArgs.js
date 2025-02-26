@@ -59,7 +59,13 @@ function parseArgs() {
         }
     }
 
-    if (!config.videoId && !['3dm', 'gamesky'].includes(config.platform)) {
+    if (!config.openaiApiKey && ['douyin', 'bilibili'].includes(config.platform)) {
+        console.error('必须提供 OpenAI API Key');
+        console.log(helpMessage);
+        process.exit(1);
+    }
+
+    if (!config.videoId && ['douyin', 'bilibili'].includes(config.platform)) {
         console.error('必须提供视频ID');
         console.log(helpMessage);
         process.exit(1);
@@ -71,11 +77,6 @@ function parseArgs() {
         process.exit(1);
     }
 
-    if (!config.openaiApiKey) {
-        console.error('必须提供 OpenAI API Key');
-        console.log(helpMessage);
-        process.exit(1);
-    }
 
     return config;
 }
