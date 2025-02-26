@@ -1,0 +1,18 @@
+{
+  "name": "clawer-news",
+  "version": "1.0.0",
+  "description": "A script to scrape comments from game news articles",
+  "main": "scrapeComments.js",
+  "scripts": {
+    "3dm": "node src/fetchHotArticles.js -p 3dm",
+    "gamesky": "node src/fetchHotArticles.js -p gamesky",
+    "douyin": "node src/analyzeComments.js -p douyin --stream -i",
+    "bilibili": "node src/analyzeComments.js -p bilibili --stream -i"
+  },
+  "dependencies": {
+    "puppeteer": "^24.2.1",
+    "table": "^6.8.0"
+  },
+  "author": "",
+  "license": "ISC"
+}
