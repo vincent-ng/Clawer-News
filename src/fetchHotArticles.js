@@ -125,9 +125,33 @@ async function fetchHotArticles() {
     console.log('关闭浏览器...');
     await browser.close();
 
+    console.log('计算爆款指数...');
+    const now = new Date();
+    results = results.map(result => {
+        // 处理 viewCount 和 commentCount 超过万的情况
+        const parseCount = (count) => {
+            if (typeof count === 'string' && count.includes('w')) {
+                return parseFloat(count) * 10000;
+            }
+            return parseInt(count.replace(/,/g, ''), 10) || 0;
+        };
+
+        const viewCount = parseCount(result.viewCount);
+        const commentCount = parseCount(result.commentCount);
+        const date = new Date(result.date);
+        const deltaTime = (now - date) / (1000 * 60 * 60); // Δt in hours
+        const hotIndex = (viewCount + 20 * commentCount) / (Math.min(deltaTime, 24) + 1);
+        return { ...result, hotIndex: hotIndex.toFixed(0) };
+    });
+
     console.log('整理成表格并输出...');
-    const data = results.map(result => [result.link, result.title, result.date, result.viewCount, result.commentCount]);
-    const output = table([['文章链接', '文章标题', '发布日期', '阅读量', '评论数量'], ...data]);
+    const data = results.map(result => [result.link, result.title, result.date, result.viewCount, result.commentCount, result.hotIndex]);
+    const tableConfig = {
+        columns: {
+            1: { truncate: 50 },
+        },
+    };
+    const output = table([['文章链接', '文章标题', '发布日期', '阅读量', '评论数量', '爆款指数'], ...data], tableConfig);
     console.log(output);
 }
 

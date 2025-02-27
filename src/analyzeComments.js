@@ -12,7 +12,7 @@ async function getFromPostCatch({ platform, videoId, checkCache }) {
     if (!checkCache) {
         console.log('忽略缓存检查...');
         return null;
-    }    
+    }
     // 检查缓存
     const cacheFilePath = path.join(cacheDir, `${encodeURIComponent(platform + videoId)}.json`);
     try {
@@ -42,7 +42,7 @@ async function getPostFromPuppeteer({ platform, videoId, verbose }) {
         userDataDir: './user_data', // 指定用户数据目录以记住cookie
         headless: !verbose // 根据verbose参数设置headless模式
     });
-    
+
     let result;
     if (platform === 'douyin') {
         result = await douyinCommentHandler(browser, videoId);
@@ -74,7 +74,7 @@ async function analyzeComments(config) {
         await fs.writeFile(cacheFilePath, JSON.stringify(post, null, 4));
         console.log(`数据已缓存到: ${cacheFilePath}`);
     }
-    
+
     // 限制评论数量
     const maxComments = config.maxComments || 50; // 默认最大评论数量为50
     post.comments = post.comments.slice(0, maxComments);
@@ -140,7 +140,7 @@ async function streamToConsole(reader) {
       if (done) break;
   
       buffer += decoder.decode(value, { stream: true }); // 解码并保留不完整字符
-  
+
       // 处理完整的事件块
       let index;
       while ((index = buffer.indexOf('\n\n')) !== -1) {
@@ -150,7 +150,7 @@ async function streamToConsole(reader) {
         if (event.startsWith('data:')) {
           const jsonStr = event.slice(5).trim();
           if (jsonStr === '[DONE]') continue; // 流结束标志
-  
+
           try {
             const data = JSON.parse(jsonStr);
             const text = data.choices[0]?.delta?.content || '';
@@ -161,7 +161,7 @@ async function streamToConsole(reader) {
         }
       }
     }
-  
+
     // 处理最后剩余的数据
     if (buffer) {
       const text = decoder.decode(); // 刷新剩余字节
