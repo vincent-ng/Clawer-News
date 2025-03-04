@@ -37,7 +37,7 @@ OPENAI_API_KEY=your_api_key node src/analyzeComments.js [options]
 | 参数 | 描述 |
 | --- | --- |
 | `-p, --platform` | 指定平台 (bilibili, douyin, 3dm, gamesky)，必填项 |
-| `-v, --videoId` | 视频ID，对于 bilibili 和 douyin 必填 |
+| `-r, --resourceId` | 资源ID，对于 bilibili、douyin、steam 必填 |
 | `--no-cache` | 忽略缓存，强制重新抓取数据 |
 | `-V, --verbose` | 开启浏览器窗口模式 |
 | `-s, --stream` | 启用流式输出结果 |
@@ -53,6 +53,7 @@ node src/fetchHotArticles.js -p <platform>
 #### 支持的平台
 - `3dm`: 游戏资讯网站 3DM
 - `gamesky`: 游戏天空网
+- `steam`: Steam 游戏平台
 
 ### 快捷命令
 项目提供了以下 npm run 快捷命令：

@@ -47,8 +47,8 @@ function extractCommentData(inputJson) {
     }
 }
 
-module.exports = async function bilibiliCommentsHandler(browser, videoId) {
-    const url = `https://www.bilibili.com/video/${videoId}`;
+module.exports = async function bilibiliCommentsHandler(browser, resourceId) {
+    const url = `https://www.bilibili.com/video/${resourceId}`;
     console.log(`访问Bilibili视频页面: ${url}...`);
     const page = await browser.newPage();
 
@@ -73,14 +73,15 @@ module.exports = async function bilibiliCommentsHandler(browser, videoId) {
 
     // 处理评论数据
     const processedComments = extractCommentData(commentData);
-    console.log(`成功提取了【${processedComments.length}】条评论`);
-
+    console.log(`成功提取了【${post.title}】的${processedComments.length}条评论`);
+    
     await page.close(); // 关闭页面释放资源
-
+    
     return {
         timestamp: Date.now(),
         title,
-        comments: processedComments
+        comments: processedComments,
+        prompt: `这是bilibili里的一个标题为${post.title}的视频下的评论。请综合点赞数、各人的态度，分析舆论风向。${JSON.stringify(post.comments)}`,
     };
 }
 

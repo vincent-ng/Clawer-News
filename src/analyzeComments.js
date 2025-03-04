@@ -2,19 +2,20 @@ const path = require('path'); // 添加 path 模块的引入
 const fs = require('fs').promises; // 使用 fs 的 await 版本 API
 const puppeteer = require('puppeteer');
 const douyinCommentHandler = require('./puppeteer-handler/douyinComments.js');
-const bilibiliCommentHandler = require('./puppeteer-handler/bilibiliComments.js'); // 引入bilibiliComments.js
+const bilibiliCommentHandler = require('./puppeteer-handler/bilibiliComments.js');
+const steamCommentHandler = require('./puppeteer-handler/steamComments.js');
 const parseArgs = require('./tools/parseArgs.js'); // 引入参数解析模块
 
 const cacheDir = './cache'; // 缓存目录
 
-async function getFromPostCatch({ platform, videoId, checkCache }) {
+async function getFromPostCatch({ platform, resourceId, checkCache }) {
     // 如果 checkCache 为 false，则跳过缓存检查
     if (!checkCache) {
         console.log('忽略缓存检查...');
         return null;
     }
     // 检查缓存
-    const cacheFilePath = path.join(cacheDir, `${encodeURIComponent(platform + videoId)}.json`);
+    const cacheFilePath = path.join(cacheDir, `${encodeURIComponent(platform + resourceId)}.json`);
     try {
         const cachedData = await fs.readFile(cacheFilePath, 'utf8');
         const cache = JSON.parse(cachedData);
@@ -34,7 +35,7 @@ async function getFromPostCatch({ platform, videoId, checkCache }) {
     }
 }
 
-async function getPostFromPuppeteer({ platform, videoId, verbose }) {
+async function getPostFromPuppeteer({ platform, resourceId, verbose }) {
     console.log('启动浏览器...');
     const browser = await puppeteer.launch({
         slowMo: 50,      // 操作延迟 (毫秒)，便于观察
@@ -45,9 +46,11 @@ async function getPostFromPuppeteer({ platform, videoId, verbose }) {
 
     let result;
     if (platform === 'douyin') {
-        result = await douyinCommentHandler(browser, videoId);
+        result = await douyinCommentHandler(browser, resourceId);
     } else if (platform === 'bilibili') {
-        result = await bilibiliCommentHandler(browser, videoId);
+        result = await bilibiliCommentHandler(browser, resourceId);
+    } else if (platform === 'steam') {
+        result = await steamCommentHandler(browser, resourceId);
     }
 
     console.log('关闭浏览器...');
@@ -65,7 +68,7 @@ async function analyzeComments(config) {
     if (!post) {
         post = await getPostFromPuppeteer(config);
         // 缓存数据
-        const cacheFilePath = path.join(cacheDir, `${encodeURIComponent(config.platform + config.videoId)}.json`);
+        const cacheFilePath = path.join(cacheDir, `${encodeURIComponent(config.platform + config.resourceId)}.json`);
         try {
             await fs.access(cacheDir); // 检查目录是否存在
         } catch (error) {
@@ -80,10 +83,9 @@ async function analyzeComments(config) {
     post.comments = post.comments.slice(0, maxComments);
 
     console.log(`发送${post.comments.length}条评论给LLM进行分析...`);
-    const prompt = `这是一个标题为${post.title}的${config.platform}视频下的评论。请综合点赞数、各人的态度，分析舆论风向。${JSON.stringify(post.comments)}`;
 
     // 请求OpenAI兼容的API
-    const openaiResponse = await callOpenAI(prompt, config); // 修改这里以支持流式输出
+    const openaiResponse = await callOpenAI(post.prompt, config); // 修改这里以支持流式输出
 
     // Ollama的代码保留作为候选
     // const ollamaResponse = await callOllama(prompt);
@@ -99,7 +101,10 @@ async function callOpenAI(prompt, { streamOutput, openaiApiKey }) {
             'Authorization': `Bearer ${openaiApiKey}`
         },
         body: JSON.stringify({
-            model: 'deepseek/deepseek-r1-distill-llama-70b:free',
+            // model: 'qwen/qwen2.5-vl-72b-instruct:free',
+            model: 'deepseek/deepseek-chat:free',
+            // model: 'deepseek/deepseek-r1:free',
+            // model: 'deepseek/deepseek-r1-distill-llama-70b:free',
             "messages": [{
                 "role": "user",
                 "content": prompt

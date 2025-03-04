@@ -6,8 +6,9 @@
   "scripts": {
     "3dm": "node src/fetchHotArticles.js -p 3dm",
     "gamesky": "node src/fetchHotArticles.js -p gamesky",
-    "douyin": "node src/analyzeComments.js -p douyin --stream -v",
-    "bilibili": "node src/analyzeComments.js -p bilibili --stream -v"
+    "steam": "node src/analyzeComments.js -p steam --stream -r",
+    "douyin": "node src/analyzeComments.js -p douyin --stream -r",
+    "bilibili": "node src/analyzeComments.js -p bilibili --stream -r"
   },
   "dependencies": {
     "puppeteer": "^24.2.1",

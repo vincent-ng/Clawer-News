@@ -1,7 +1,7 @@
 const scrollPage = require('../tools/scrollPage');
 
-module.exports = async function douyinCommentsHandler(browser, videoId) {
-    const url = `https://www.douyin.com/video/${videoId}`; // 拼接URL
+module.exports = async function douyinCommentsHandler(browser, resourceId) {
+    const url = `https://www.douyin.com/video/${resourceId}`; // 拼接URL
     console.log(`访问抖音视频页面: ${url}...`);
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'networkidle2' });
@@ -42,6 +42,8 @@ module.exports = async function douyinCommentsHandler(browser, videoId) {
         }
     });
     console.log(`成功提取了【${post.title}】的${post.comments.length} 条评论`);
+
+    post.prompt = `这是douyin里的一个标题为${post.title}的视频下的评论。请综合点赞数、各人的态度，分析舆论风向。${JSON.stringify(post.comments)}`;
 
     return post;
 }

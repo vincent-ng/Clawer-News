@@ -147,8 +147,9 @@ async function fetchHotArticles() {
     console.log('整理成表格并输出...');
     const data = results.map(result => [result.link, result.title, result.date, result.viewCount, result.commentCount, result.hotIndex]);
     const tableConfig = {
+        singleLine: true,
         columns: {
-            1: { truncate: 50 },
+            1: { width: 50, truncate: 25 },
         },
     };
     const output = table([['文章链接', '文章标题', '发布日期', '阅读量', '评论数量', '爆款指数'], ...data], tableConfig);

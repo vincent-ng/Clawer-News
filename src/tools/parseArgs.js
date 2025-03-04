@@ -1,11 +1,11 @@
 const helpMessage = `
-Usage: node analyzeComments.js [options] -p <platform> [-v <videoId>] [-s] [-V] [--no-cache] [-m <maxComments>] [-h]
+Usage: node analyzeComments.js [options] -p <platform> [-r <resourceId>] [-s] [-v] [--no-cache] [-m <maxComments>] [-h]
 OPENAI_API_KEY: Set your OpenAI API Key in the environment variable OPENAI_API_KEY
 Options:
-  -p, --platform  Specify the platform (bilibili, douyin, 3dm, gamesky), required
-  -v, --videoId   Specify the video ID, required for bilibili and douyin
+  -p, --platform  Specify the platform (bilibili, douyin, steam, 3dm, gamesky), required
+  -r, --resourceId   Specify the video/game ID, required for bilibili/douyin/steam
   -s, --stream    Stream the output
-  -V, --verbose   Run Puppeteer in non-headless mode (show browser window)
+  -v, --verbose   Run Puppeteer in non-headless mode (show browser window)
   --no-cache      Ignore cache (useful for debugging)
   -m, --maxComments Specify the maximum number of comments to analyze
   -h, --help      Show this help message and exit
@@ -15,7 +15,7 @@ function parseArgs() {
     const args = process.argv.slice(2);
     const config = {
         platform: 'douyin', // 默认平台为抖音
-        videoId: '', // 视频ID
+        resourceId: '', // 资源ID，如视频ID或游戏ID
         checkCache: true, // 是否检查缓存
         verbose: false, // 是否详细输出
         streamOutput: false, // 是否流式输出
@@ -30,15 +30,15 @@ function parseArgs() {
             case '-p':
                 config.platform = args[++i];
                 break;
-            case '--videoId':
-            case '-v':
-                config.videoId = args[++i];
+            case '--resourceId':
+            case '-r':
+                config.resourceId = args[++i];
                 break;
             case '--no-cache':
                 config.checkCache = false;
                 break;
             case '--verbose':
-            case '-V':
+            case '-v':
                 config.verbose = true;
                 break;
             case '--stream':
@@ -59,20 +59,20 @@ function parseArgs() {
         }
     }
 
-    if (!config.openaiApiKey && ['douyin', 'bilibili'].includes(config.platform)) {
+    if (!config.openaiApiKey && ['douyin', 'bilibili', 'steam'].includes(config.platform)) {
         console.error('必须提供 OpenAI API Key');
         console.log(helpMessage);
         process.exit(1);
     }
 
-    if (!config.videoId && ['douyin', 'bilibili'].includes(config.platform)) {
+    if (!config.resourceId && ['douyin', 'bilibili'].includes(config.platform)) {
         console.error('必须提供视频ID');
         console.log(helpMessage);
         process.exit(1);
     }
 
-    if (!['bilibili', 'douyin', '3dm', 'gamesky'].includes(config.platform)) {
-        console.error('平台参数必须是 bilibili, douyin, 3dm 或 gamesky');
+    if (!['bilibili', 'douyin', 'steam', '3dm', 'gamesky'].includes(config.platform)) {
+        console.error('平台参数必须是 bilibili, douyin, steam, 3dm, gamesky 之一');
         console.log(helpMessage);
         process.exit(1);
     }
