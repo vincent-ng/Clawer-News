@@ -72,16 +72,22 @@ module.exports = async function bilibiliCommentsHandler(browser, resourceId) {
     );
 
     // 处理评论数据
-    const processedComments = extractCommentData(commentData);
-    console.log(`成功提取了【${post.title}】的${processedComments.length}条评论`);
+    const comments = extractCommentData(commentData);
+    console.log(`成功提取了【${title}】的${comments.length}条评论`);
     
     await page.close(); // 关闭页面释放资源
     
     return {
         timestamp: Date.now(),
         title,
-        comments: processedComments,
-        prompt: `这是bilibili里的一个标题为${post.title}的视频下的评论。请综合点赞数、各人的态度，分析舆论风向。${JSON.stringify(post.comments)}`,
+        comments,
+        prompt: `
+            这是bilibili的一个视频的评论数据，题目是${title}。
+            我是一名底部的游戏博主，需要将收集到评价进行分析，编写一份两分钟以内爆款的短视频口播文案，来让我更引人关注。
+            注意不要结构化输出文稿，不要带emoji，这是口播稿。语言风格参考贴吧老哥，不要太正式。
+            以下是数据：${JSON.stringify(comments)}
+        `
+        // `这是bilibili里的一个标题为${title}的视频下的评论。请综合点赞数、各人的态度，分析舆论风向。${JSON.stringify(processedComments)}`,
     };
 }
 
